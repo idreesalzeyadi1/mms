@@ -4,23 +4,15 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? "",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN ?? "",
-  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL ?? "",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID ?? "",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET ?? "",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID ?? "",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID ?? "",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID ?? "",
+  apiKey: "AIzaSyDpb10ZYeD260142lFMMgb1AHtDTI7jX_E",
+  authDomain: "madrasa-web-app.firebaseapp.com",
+  databaseURL: "https://madrasa-web-app-default-rtdb.firebaseio.com",
+  projectId: "madrasa-web-app",
+  storageBucket: "madrasa-web-app.firebasestorage.app",
+  messagingSenderId: "172002764719",
+  appId: "1:172002764719:web:59f3464423ada13415f15a",
+  measurementId: "G-VC8XW05NPB",
 };
-
-const isFirebaseConfigured = Object.values(firebaseConfig).every(Boolean);
-
-if (!isFirebaseConfigured) {
-  console.warn(
-    "Firebase credentials are missing. Add them to a .env file before running the app."
-  );
-}
 
 const app = initializeApp(firebaseConfig);
 
@@ -29,7 +21,7 @@ export const db = getFirestore(app);
 
 isSupported()
   .then((ok) => {
-    if (ok && firebaseConfig.measurementId) getAnalytics(app);
+    if (ok) getAnalytics(app);
   })
   .catch(() => {});
 
