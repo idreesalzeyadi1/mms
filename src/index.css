@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+/* ---------- Print (Merit List / Report Card) ---------- */
+.print-only {
+  display: none;
+}
+
+@media print {
+  #root {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  body {
+    background: #fff;
+  }
+  @page {
+    margin: 14mm;
+  }
+}
