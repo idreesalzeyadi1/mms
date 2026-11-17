@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { FaMosque } from "react-icons/fa6";
 import { NAV } from "../config/nav";
 
-export default function Sidebar({ open, onClose }) {
+export default function Sidebar({ open, onClose, navItems }) {
   return (
     <>
       {open && (
@@ -32,7 +32,7 @@ export default function Sidebar({ open, onClose }) {
 
         {/* Menu */}
         <nav className="mt-2 space-y-1">
-          {NAV.map(({ path, label, icon: Icon }) => (
+          {navItems.map(({ path, label, icon: Icon }) => (
             <NavLink
               key={path}
               to={path}

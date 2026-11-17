@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
+import { doc, serverTimestamp, writeBatch } from "firebase/firestore";
 import { db } from "../firebase";
 import useCollection from "../hooks/useCollection";
+import { addActivityToBatch } from "../utils/db";
 import { byRoll, CLASSES, today } from "../utils/helpers";
 import {
   btnGreen,
@@ -59,12 +60,27 @@ export default function Attendance() {
     try {
       const records = {};
       list.forEach((s) => (records[s.id] = statusOf(s.id)));
-      await setDoc(doc(db, "attendance", docId), {
+      const batch = writeBatch(db);
+      batch.set(doc(db, "attendance", docId), {
         class: cls,
         date,
         records,
         updatedAt: serverTimestamp(),
       });
+      const changes = list
+        .filter((student) => (existing?.records?.[student.id] || "(empty)") !== records[student.id])
+        .map((student) => ({
+          field: `${student.rollNo} - ${student.name}`,
+          from: existing?.records?.[student.id] || "(empty)",
+          to: records[student.id],
+        }));
+      addActivityToBatch(batch, {
+        action: "update",
+        entity: "attendance",
+        description: `Saved attendance for ${cls} on ${date}`,
+        changes,
+      });
+      await batch.commit();
       alert("Attendance saved.");
     } catch (err) {
       alert("Could not save: " + err.message);

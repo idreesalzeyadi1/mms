@@ -6,7 +6,15 @@ import { NAV } from "../config/nav";
 import { useAuth } from "../context/AuthContext";
 
 export default function Layout() {
-  const { user, loading, logout } = useAuth();
+  const {
+    user,
+    loading,
+    accessLoading,
+    accessError,
+    teacher,
+    hasAccess,
+    logout,
+  } = useAuth();
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -21,11 +29,40 @@ export default function Layout() {
   }
   if (!user) return <Navigate to="/login" replace />;
 
+  if (accessLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
+      </div>
+    );
+  }
+  if (accessError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
+        <div className="max-w-lg rounded-2xl border border-red-200 bg-white p-6 text-center shadow-sm">
+          <h2 className="font-bold text-slate-900">Could not verify access</h2>
+          <p className="mt-2 text-sm text-red-700">{accessError}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const navItems = NAV.filter(
+    (item) =>
+      (!item.adminOnly || !teacher) &&
+      (!item.permission || hasAccess(item.permission))
+  );
   const current = NAV.find((n) => n.path === pathname);
+  const canOpenCurrent = current && navItems.some((item) => item.path === current.path);
+  const firstAllowedPath = navItems[0]?.path;
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <Sidebar
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        navItems={navItems}
+      />
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Header */}
@@ -49,9 +86,11 @@ export default function Layout() {
             </div>
             <div className="hidden leading-tight sm:block">
               <p className="text-sm font-semibold text-slate-800">
-                Madrasah Administrator
+                {teacher?.name || "Madrasah Administrator"}
               </p>
-              <p className="text-xs text-slate-500">Administrator</p>
+              <p className="text-xs text-slate-500">
+                {teacher ? "Teacher" : "Administrator"}
+              </p>
             </div>
             <button
               onClick={logout}
@@ -63,7 +102,18 @@ export default function Layout() {
         </header>
 
         <main className="flex-1 p-4 sm:p-6">
-          <Outlet />
+          {canOpenCurrent ? (
+            <Outlet />
+          ) : firstAllowedPath ? (
+            <Navigate to={firstAllowedPath} replace />
+          ) : (
+            <div className="rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm">
+              <h2 className="text-lg font-bold text-slate-900">No access assigned</h2>
+              <p className="mt-2 text-sm text-slate-500">
+                Please contact the administrator to get access to a section.
+              </p>
+            </div>
+          )}
         </main>
 
         <footer className="flex items-center justify-between px-6 pb-4 pt-8 text-xs text-slate-400">

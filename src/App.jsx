@@ -11,6 +11,7 @@ import FeeCollection from "./pages/FeeCollection";
 import ExamMarksEntry from "./pages/ExamMarksEntry";
 import ExamResults from "./pages/ExamResults";
 import ManageTeachers from "./pages/ManageTeachers";
+import ActivityLog from "./pages/ActivityLog";
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
             <Route path="/marks" element={<ExamMarksEntry />} />
             <Route path="/results" element={<ExamResults />} />
             <Route path="/teachers" element={<ManageTeachers />} />
+            <Route path="/activity" element={<ActivityLog />} />
           </Route>
         </Routes>
       </HashRouter>

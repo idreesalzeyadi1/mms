@@ -15,8 +15,10 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+const teacherAuthApp = initializeApp(firebaseConfig, "teacher-account-creation");
 
 export const auth = getAuth(app);
+export const teacherAuth = getAuth(teacherAuthApp);
 export const db = getFirestore(app);
 
 isSupported()

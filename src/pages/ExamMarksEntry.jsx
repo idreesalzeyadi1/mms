@@ -3,7 +3,7 @@ import { doc, serverTimestamp, writeBatch } from "firebase/firestore";
 import { FaMagnifyingGlass, FaPlus } from "react-icons/fa6";
 import { db } from "../firebase";
 import useCollection from "../hooks/useCollection";
-import { addRecord } from "../utils/db";
+import { addActivityToBatch, addRecord } from "../utils/db";
 import { byRoll, CLASSES } from "../utils/helpers";
 import Modal from "../components/Modal";
 import {
@@ -91,9 +91,14 @@ export default function ExamMarksEntry() {
       return;
     const batch = writeBatch(db);
     batch.delete(doc(db, "exams", exam.id));
-    marks.data
-      .filter((m) => m.examId === exam.id)
-      .forEach((m) => batch.delete(doc(db, "marks", m.id)));
+    const examMarks = marks.data.filter((m) => m.examId === exam.id);
+    examMarks.forEach((m) => batch.delete(doc(db, "marks", m.id)));
+    addActivityToBatch(batch, {
+      action: "delete",
+      entity: "exam",
+      description: `Deleted exam "${exam.name}" and ${examMarks.length} marks records`,
+      changes: [],
+    });
     await batch.commit();
     setExamId("");
   };
@@ -114,13 +119,30 @@ export default function ExamMarksEntry() {
     setSaving(true);
     try {
       const batch = writeBatch(db);
+      const changes = [];
       list.forEach((s) => {
         const ref = doc(db, "marks", `${exam.id}_${s.id}`);
         const v = entries[s.id];
         if (v === undefined || v === "") {
           // if the marks were cleared, remove the old record too
-          if (marks.data.some((m) => m.id === ref.id)) batch.delete(ref);
+          const previous = marks.data.find((m) => m.id === ref.id);
+          if (previous) {
+            batch.delete(ref);
+            changes.push({
+              field: `${s.rollNo} - ${s.name}`,
+              from: String(previous.obtained),
+              to: "(cleared)",
+            });
+          }
         } else {
+          const previous = marks.data.find((m) => m.id === ref.id);
+          if (!previous || Number(previous.obtained) !== Number(v)) {
+            changes.push({
+              field: `${s.rollNo} - ${s.name}`,
+              from: previous ? String(previous.obtained) : "(empty)",
+              to: String(Number(v)),
+            });
+          }
           batch.set(ref, {
             examId: exam.id,
             studentId: s.id,
@@ -129,6 +151,12 @@ export default function ExamMarksEntry() {
             updatedAt: serverTimestamp(),
           });
         }
+      });
+      addActivityToBatch(batch, {
+        action: "update",
+        entity: "marks",
+        description: `Saved marks for "${exam.name}" — ${cls}`,
+        changes,
       });
       await batch.commit();
       alert("Marks saved.");
