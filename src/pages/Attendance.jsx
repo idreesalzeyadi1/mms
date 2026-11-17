@@ -19,6 +19,7 @@ import {
 const STATUSES = [
   { key: "present", label: "Present", on: "bg-emerald-600 text-white", off: "text-emerald-700 hover:bg-emerald-50" },
   { key: "absent", label: "Absent", on: "bg-red-600 text-white", off: "text-red-600 hover:bg-red-50" },
+  { key: "holiday", label: "Holiday", on: "bg-violet-600 text-white", off: "text-violet-700 hover:bg-violet-50" },
   { key: "leave", label: "Leave", on: "bg-amber-500 text-white", off: "text-amber-600 hover:bg-amber-50" },
 ];
 
@@ -110,6 +111,7 @@ export default function Attendance() {
         <div className="flex flex-wrap items-center gap-2">
           <Pill className="bg-emerald-100 text-emerald-800">Present: {count("present")}</Pill>
           <Pill className="bg-red-100 text-red-700">Absent: {count("absent")}</Pill>
+          <Pill className="bg-violet-100 text-violet-800">Holiday: {count("holiday")}</Pill>
           <Pill className="bg-amber-100 text-amber-800">Leave: {count("leave")}</Pill>
         </div>
       </Card>

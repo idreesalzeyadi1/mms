@@ -6,7 +6,7 @@ export default function Modal({ open, title, onClose, children, size = "max-w-lg
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-3 sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -21,7 +21,7 @@ export default function Modal({ open, title, onClose, children, size = "max-w-lg
             exit={{ opacity: 0, y: 24, scale: 0.97 }}
             transition={{ duration: 0.18 }}
           >
-            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+            <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 sm:px-6 sm:py-4">
               <h3 className="text-base font-bold text-slate-900">{title}</h3>
               <button
                 onClick={onClose}
@@ -31,7 +31,7 @@ export default function Modal({ open, title, onClose, children, size = "max-w-lg
                 <FaXmark />
               </button>
             </div>
-            <div className="p-6">{children}</div>
+            <div className="p-4 sm:p-6">{children}</div>
           </motion.div>
         </motion.div>
       )}

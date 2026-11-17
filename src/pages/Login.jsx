@@ -47,7 +47,7 @@ export default function Login() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-900 via-emerald-800 to-teal-700 p-4">
       <form
         onSubmit={submit}
-        className="w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl"
+        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl sm:p-8"
       >
         <div className="mb-6 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-700 text-3xl text-emerald-100">

@@ -119,9 +119,9 @@ export default function ExamResults() {
       </Card>
 
       {/* Merit table */}
-      <Card className="p-6">
+      <Card className="p-4 sm:p-6">
         <div className="border-b border-slate-100 pb-4 text-center">
-          <h3 className="text-2xl font-bold text-emerald-900">{MADRASA_NAME}</h3>
+          <h3 className="break-words text-xl font-bold text-emerald-900 sm:text-2xl">{MADRASA_NAME}</h3>
           <p className="text-sm text-slate-600">{heading || "No exam selected"}</p>
         </div>
 
@@ -184,7 +184,7 @@ export default function ExamResults() {
         {reportRow && (
           <>
             <ReportCard row={reportRow} exam={exam} cls={cls} totalStudents={ranked.length} />
-            <div className="mt-6 flex justify-end gap-3">
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
               <button onClick={() => setReportRow(null)} className={btnGhost}>
                 Close
               </button>

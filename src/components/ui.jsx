@@ -4,14 +4,14 @@ export const inputCls =
   "w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-800 outline-none transition focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-100";
 
 export const btnBase =
-  "inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-[15px] font-semibold text-white shadow-md transition disabled:cursor-not-allowed disabled:opacity-60";
+  "inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white shadow-md transition disabled:cursor-not-allowed disabled:opacity-60 sm:px-5 sm:py-3 sm:text-[15px]";
 export const btnGreen = `${btnBase} bg-emerald-600 hover:bg-emerald-700`;
 export const btnAmber = `${btnBase} bg-amber-600 hover:bg-amber-700`;
 export const btnDark = `${btnBase} bg-slate-800 hover:bg-slate-900`;
 export const btnGhost =
-  "inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-[15px] font-semibold text-slate-700 transition hover:bg-slate-50";
+  "inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 sm:px-5 sm:py-3 sm:text-[15px]";
 
-export const td = "px-6 py-4 text-sm text-slate-700";
+export const td = "px-3 py-3 text-sm text-slate-700 sm:px-6 sm:py-4";
 
 export function Field({ label, children, className = "" }) {
   return (
@@ -36,10 +36,10 @@ export function Card({ children, className = "" }) {
 
 export function PageHeader({ title, subtitle, action }) {
   return (
-    <Card className="mb-6 flex flex-wrap items-center justify-between gap-4 px-6 py-5">
-      <div>
-        <h2 className="text-lg font-bold text-slate-900">{title}</h2>
-        {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
+    <Card className="mb-6 flex flex-wrap items-center justify-between gap-4 px-4 py-4 sm:px-6 sm:py-5">
+      <div className="min-w-0">
+        <h2 className="break-words text-lg font-bold text-slate-900">{title}</h2>
+        {subtitle && <p className="break-words text-sm text-slate-500">{subtitle}</p>}
       </div>
       {action}
     </Card>
@@ -56,7 +56,7 @@ export function DataTable({ headers, loading, isEmpty, emptyText, children }) {
               {headers.map((h) => (
                 <th
                   key={h}
-                  className="whitespace-nowrap px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600"
+                  className="whitespace-nowrap px-3 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 sm:px-6 sm:py-4"
                 >
                   {h}
                 </th>

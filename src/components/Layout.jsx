@@ -66,8 +66,8 @@ export default function Layout() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Header */}
-        <header className="flex h-[75px] items-center justify-between border-b border-slate-100 bg-white pl-4 pr-4 sm:pl-6 lg:pl-10 lg:pr-6">
-          <div className="flex items-center gap-3">
+        <header className="flex min-h-[75px] items-center justify-between gap-2 border-b border-slate-100 bg-white px-3 py-3 sm:px-6 lg:pl-10 lg:pr-6">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button
               onClick={() => setMenuOpen(true)}
               className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
@@ -75,13 +75,13 @@ export default function Layout() {
             >
               <FaBars />
             </button>
-            <h2 className="text-lg font-bold text-slate-900 sm:text-xl">
+            <h2 className="min-w-0 break-words text-base font-bold text-slate-900 sm:text-xl">
               {current?.title || "Madrasa Management System"}
             </h2>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-800">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-800 sm:h-10 sm:w-10">
               MA
             </div>
             <div className="hidden leading-tight sm:block">
@@ -94,14 +94,14 @@ export default function Layout() {
             </div>
             <button
               onClick={logout}
-              className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200"
+              className="flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 sm:px-3"
             >
               <FaRightFromBracket /> Logout
             </button>
           </div>
         </header>
 
-        <main className="flex-1 p-4 sm:p-6">
+        <main className="min-w-0 flex-1 p-3 sm:p-6">
           {canOpenCurrent ? (
             <Outlet />
           ) : firstAllowedPath ? (

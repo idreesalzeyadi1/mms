@@ -23,9 +23,9 @@ export default function ReportCard({ row, exam, cls, totalStudents }) {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-2xl border-2 border-emerald-800 p-6 text-slate-900">
+    <div className="mx-auto w-full max-w-2xl border-2 border-emerald-800 p-4 text-slate-900 sm:p-6">
       <div className="border-b-2 border-emerald-800 pb-3 text-center">
-        <h1 className="text-2xl font-bold text-emerald-900">{MADRASA_NAME}</h1>
+        <h1 className="break-words text-xl font-bold text-emerald-900 sm:text-2xl">{MADRASA_NAME}</h1>
         <p className="text-sm font-semibold uppercase tracking-widest text-slate-600">
           Student Report Card
         </p>
@@ -67,9 +67,9 @@ export default function ReportCard({ row, exam, cls, totalStudents }) {
         </tbody>
       </table>
 
-      <div className="mt-14 flex justify-between text-xs font-semibold text-slate-600">
-        <span className="border-t border-slate-500 px-6 pt-1">Class Teacher</span>
-        <span className="border-t border-slate-500 px-6 pt-1">Principal</span>
+      <div className="mt-14 flex flex-wrap justify-between gap-6 text-xs font-semibold text-slate-600">
+        <span className="border-t border-slate-500 px-3 pt-1 sm:px-6">Class Teacher</span>
+        <span className="border-t border-slate-500 px-3 pt-1 sm:px-6">Principal</span>
       </div>
     </div>
   );
