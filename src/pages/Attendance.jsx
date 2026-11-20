@@ -270,7 +270,7 @@ export default function Attendance() {
       context.textAlign = "right";
       context.fillStyle = "#94a3b8";
       context.font = '16px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
-      context.fillText("طالب علم", 818, 583);
+      context.fillText("نمبر / نام", 818, 583);
       context.textAlign = "center";
       context.fillText("جماعت", 440, 583);
       context.textAlign = "left";
@@ -288,19 +288,19 @@ export default function Attendance() {
           "#edf2ee"
         );
         context.beginPath();
-        context.arc(106, rowY + 24, 14, 0, Math.PI * 2);
+        context.arc(805, rowY + 24, 14, 0, Math.PI * 2);
         context.fillStyle = "#e7f5ed";
         context.fill();
         context.direction = "ltr";
         context.textAlign = "center";
         context.fillStyle = "#047857";
         context.font = "bold 14px Arial, sans-serif";
-        context.fillText(String(index + 1), 106, rowY + 29);
+        context.fillText(String(index + 1), 805, rowY + 29);
         context.direction = "rtl";
         context.fillStyle = "#1e293b";
         context.font = '19px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
         context.textAlign = "right";
-        context.fillText(String(student.name || ""), 818, rowY + 31, 360);
+        context.fillText(String(student.name || ""), 776, rowY + 31, 320);
         context.textAlign = "center";
         context.fillStyle = "#475569";
         context.font = "16px Arial, sans-serif";
