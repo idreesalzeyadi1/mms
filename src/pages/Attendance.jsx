@@ -3,7 +3,7 @@ import { doc, serverTimestamp, writeBatch } from "firebase/firestore";
 import { db } from "../firebase";
 import useCollection from "../hooks/useCollection";
 import { addActivityToBatch } from "../utils/db";
-import { byRoll, CLASSES, today } from "../utils/helpers";
+import { byRoll, CLASSES, MADRASA_NAME, today } from "../utils/helpers";
 import {
   btnGreen,
   btnGhost,
@@ -28,6 +28,7 @@ export default function Attendance() {
   const attendance = useCollection("attendance");
 
   const [cls, setCls] = useState(CLASSES[0]);
+  const [reportScope, setReportScope] = useState("current");
   const [date, setDate] = useState(today());
   const [marks, setMarks] = useState({});
   const [saving, setSaving] = useState(false);
@@ -90,6 +91,158 @@ export default function Attendance() {
     }
   };
 
+  const generateReport = async () => {
+    const allClasses = reportScope === "all";
+    const reportStudents = allClasses
+      ? students.data.slice().sort((a, b) => {
+          const aClass = CLASSES.indexOf(a.class);
+          const bClass = CLASSES.indexOf(b.class);
+          return (
+            (aClass < 0 ? CLASSES.length : aClass) -
+              (bClass < 0 ? CLASSES.length : bClass) ||
+            byRoll(a, b)
+          );
+        })
+      : list;
+    const recordsByClass = new Map(
+      attendance.data
+        .filter((record) => record.date === date)
+        .map((record) => [record.class, record.records || {}])
+    );
+    const reportStatusOf = (student) =>
+      allClasses && student.class !== cls
+        ? recordsByClass.get(student.class)?.[student.id] || "present"
+        : statusOf(student.id);
+    const absentStudents = reportStudents.filter(
+      (student) => reportStatusOf(student) === "absent"
+    );
+    const reportCount = (status) =>
+      reportStudents.filter((student) => reportStatusOf(student) === status).length;
+    const canvas = document.createElement("canvas");
+    const scale = 2;
+    const width = 900;
+    const rowHeight = 48;
+    const height = 650 + Math.max(absentStudents.length, 1) * rowHeight;
+    canvas.width = width * scale;
+    canvas.height = height * scale;
+    const context = canvas.getContext("2d");
+
+    if (!context) {
+      alert("Report image could not be created in this browser.");
+      return;
+    }
+
+    context.scale(scale, scale);
+    context.fillStyle = "#f4f7f5";
+    context.fillRect(0, 0, width, height);
+    context.fillStyle = "#ffffff";
+    context.fillRect(36, 36, width - 72, height - 72);
+
+    context.fillStyle = "#065f46";
+    context.fillRect(36, 36, width - 72, 18);
+
+    context.direction = "rtl";
+    context.textAlign = "center";
+    context.fillStyle = "#064e3b";
+    context.font = 'bold 42px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+    context.fillText("مدرسہ دارالعلوم انوار القرآن", width / 2, 132);
+    context.direction = "ltr";
+    context.fillStyle = "#64748b";
+    context.font = "600 19px Arial, sans-serif";
+    context.fillText(MADRASA_NAME, width / 2, 170);
+
+    context.fillStyle = "#0f172a";
+    context.font = 'bold 34px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+    context.direction = "rtl";
+    context.fillText("روزانہ حاضری کی رپورٹ", width / 2, 238);
+    context.fillStyle = "#10b981";
+    context.fillRect(width / 2 - 48, 260, 96, 4);
+
+    const reportDate = new Date(`${date}T00:00:00`).toLocaleDateString("ur-PK", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    context.fillStyle = "#334155";
+    context.font = '24px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+    context.fillText(
+      `تاریخ: ${reportDate}     جماعت: ${allClasses ? "تمام جماعتیں" : cls}`,
+      width / 2,
+      318
+    );
+
+    const summaryY = 380;
+    const summaryItems = [
+      [`کل طلبہ: ${reportStudents.length}`, "#334155"],
+      [`حاضر: ${reportCount("present")}`, "#047857"],
+      [`غیر حاضر: ${absentStudents.length}`, "#b91c1c"],
+      [`رخصت: ${reportCount("leave")}`, "#b45309"],
+      [`تعطیل: ${reportCount("holiday")}`, "#6d28d9"],
+    ];
+    const summaryWidth = (width - 120) / summaryItems.length;
+    context.textAlign = "center";
+    context.font = 'bold 21px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+    summaryItems.forEach(([label, color], index) => {
+      const x = 60 + summaryWidth * (index + 0.5);
+      context.fillStyle = "#f8fafc";
+      context.fillRect(60 + summaryWidth * index + 5, summaryY - 38, summaryWidth - 10, 78);
+      context.fillStyle = color;
+      context.fillText(label, x, summaryY + 10);
+    });
+
+    context.direction = "rtl";
+    context.textAlign = "right";
+    context.fillStyle = "#064e3b";
+    context.font = 'bold 27px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+    context.fillText("غیر حاضر طلبہ کے نام", width - 92, 500);
+    context.fillStyle = "#d1fae5";
+    context.fillRect(92, 516, width - 184, 2);
+
+    context.fillStyle = "#1e293b";
+    context.font = '23px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+    if (absentStudents.length === 0) {
+      context.textAlign = "center";
+      context.fillText("آج کوئی طالب علم غیر حاضر نہیں ہے۔", width / 2, 570);
+    } else {
+      absentStudents.forEach((student, index) => {
+        const y = 566 + index * rowHeight;
+        context.fillStyle = index % 2 === 0 ? "#f8fafc" : "#ffffff";
+        context.fillRect(82, y - 32, width - 164, rowHeight);
+        context.fillStyle = "#1e293b";
+        context.textAlign = "right";
+        const classLabel = allClasses ? `  —  کلاس: ${student.class}` : "";
+        context.fillText(
+          `${student.name}${classLabel}  —  رول نمبر: ${student.rollNo || "—"}`,
+          width - 102,
+          y
+        );
+      });
+    }
+
+    context.direction = "rtl";
+    context.textAlign = "center";
+    context.fillStyle = "#64748b";
+    context.font = '18px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+    context.fillText("اللہ تعالیٰ ہمارے طلبہ کو علمِ نافع عطا فرمائے", width / 2, height - 72);
+
+    try {
+      const blob = await new Promise((resolve, reject) => {
+        canvas.toBlob((result) => {
+          if (result) resolve(result);
+          else reject(new Error("Could not encode the report image."));
+        }, "image/png");
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `attendance-report-${allClasses ? "all-classes" : cls}-${date}.png`;
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (error) {
+      alert("Report could not be downloaded: " + error.message);
+    }
+  };
+
   return (
     <>
       <ErrorNote message={students.error || attendance.error} />
@@ -105,6 +258,16 @@ export default function Attendance() {
           </Field>
           <Field label="Date" className="w-48">
             <input type="date" className={inputCls} value={date} onChange={(e) => setDate(e.target.value)} />
+          </Field>
+          <Field label="Report Scope" className="w-48">
+            <select
+              className={inputCls}
+              value={reportScope}
+              onChange={(e) => setReportScope(e.target.value)}
+            >
+              <option value="current">Current Class ({cls})</option>
+              <option value="all">All Classes</option>
+            </select>
           </Field>
         </div>
 
@@ -123,6 +286,17 @@ export default function Attendance() {
         <div className="flex gap-3">
           <button onClick={() => markAll("present")} className={`${btnGhost} !py-2 text-sm`}>
             Mark All Present
+          </button>
+          <button
+            onClick={generateReport}
+            disabled={
+              students.loading ||
+              attendance.loading ||
+              (reportScope === "all" ? students.data.length === 0 : list.length === 0)
+            }
+            className={`${btnGhost} !py-2 text-sm`}
+          >
+            Create Report
           </button>
           <button onClick={save} disabled={saving || list.length === 0} className={`${btnGreen} !py-2`}>
             {saving ? "Saving..." : "Save Attendance"}
