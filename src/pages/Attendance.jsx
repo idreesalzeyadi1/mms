@@ -121,8 +121,8 @@ export default function Attendance() {
     const canvas = document.createElement("canvas");
     const scale = 2;
     const width = 900;
-    const rowHeight = 48;
-    const height = 650 + Math.max(absentStudents.length, 1) * rowHeight;
+    const rowHeight = 56;
+    const height = 710 + Math.max(absentStudents.length, 1) * rowHeight;
     canvas.width = width * scale;
     canvas.height = height * scale;
     const context = canvas.getContext("2d");
@@ -132,98 +132,195 @@ export default function Attendance() {
       return;
     }
 
-    context.scale(scale, scale);
-    context.fillStyle = "#f4f7f5";
-    context.fillRect(0, 0, width, height);
-    context.fillStyle = "#ffffff";
-    context.fillRect(36, 36, width - 72, height - 72);
+    const drawRoundedRect = (x, y, rectWidth, rectHeight, radius, fill, stroke) => {
+      context.beginPath();
+      context.moveTo(x + radius, y);
+      context.lineTo(x + rectWidth - radius, y);
+      context.quadraticCurveTo(x + rectWidth, y, x + rectWidth, y + radius);
+      context.lineTo(x + rectWidth, y + rectHeight - radius);
+      context.quadraticCurveTo(
+        x + rectWidth,
+        y + rectHeight,
+        x + rectWidth - radius,
+        y + rectHeight
+      );
+      context.lineTo(x + radius, y + rectHeight);
+      context.quadraticCurveTo(x, y + rectHeight, x, y + rectHeight - radius);
+      context.lineTo(x, y + radius);
+      context.quadraticCurveTo(x, y, x + radius, y);
+      context.closePath();
+      context.fillStyle = fill;
+      context.fill();
+      if (stroke) {
+        context.strokeStyle = stroke;
+        context.lineWidth = 1;
+        context.stroke();
+      }
+    };
 
-    context.fillStyle = "#065f46";
-    context.fillRect(36, 36, width - 72, 18);
+    context.scale(scale, scale);
+    context.fillStyle = "#edf3ef";
+    context.fillRect(0, 0, width, height);
+    drawRoundedRect(26, 24, width - 52, height - 48, 24, "#ffffff", "#dce8df");
+
+    const headerGradient = context.createLinearGradient(36, 36, 864, 260);
+    headerGradient.addColorStop(0, "#064e3b");
+    headerGradient.addColorStop(1, "#047857");
+    drawRoundedRect(38, 36, width - 76, 222, 20, headerGradient);
+    context.fillStyle = "#d6b66f";
+    context.fillRect(72, 52, width - 144, 3);
+
+    context.save();
+    context.globalAlpha = 0.1;
+    context.fillStyle = "#ffffff";
+    context.beginPath();
+    context.arc(118, 89, 46, 0, Math.PI * 2);
+    context.fill();
+    context.beginPath();
+    context.arc(782, 205, 72, 0, Math.PI * 2);
+    context.fill();
+    context.restore();
 
     context.direction = "rtl";
     context.textAlign = "center";
-    context.fillStyle = "#064e3b";
+    context.fillStyle = "#f4dfaa";
     context.font = 'bold 42px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
-    context.fillText("مدرسہ دارالعلوم انوار القرآن", width / 2, 132);
-    context.direction = "ltr";
-    context.fillStyle = "#64748b";
-    context.font = "600 19px Arial, sans-serif";
-    context.fillText(MADRASA_NAME, width / 2, 170);
-
-    context.fillStyle = "#0f172a";
-    context.font = 'bold 34px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+    context.fillText("مدرسہ دارالعلوم انوار القرآن", width / 2, 112);
     context.direction = "rtl";
-    context.fillText("روزانہ حاضری کی رپورٹ", width / 2, 238);
-    context.fillStyle = "#10b981";
-    context.fillRect(width / 2 - 48, 260, 96, 4);
+    context.textAlign = "center";
+    context.direction = "ltr";
+    context.fillStyle = "#d1fae5";
+    context.font = "600 16px Arial, sans-serif";
+    context.fillText(MADRASA_NAME, width / 2, 143);
+    context.fillStyle = "#d6b66f";
+    context.fillRect(width / 2 - 38, 160, 76, 2);
+
+    context.direction = "rtl";
+    context.fillStyle = "#ffffff";
+    context.font = 'bold 32px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+    context.fillText("روزانہ حاضری کی رپورٹ", width / 2, 215);
 
     const reportDate = new Date(`${date}T00:00:00`).toLocaleDateString("ur-PK", {
       year: "numeric",
       month: "long",
       day: "numeric",
     });
-    context.fillStyle = "#334155";
-    context.font = '24px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
-    context.fillText(
-      `تاریخ: ${reportDate}     جماعت: ${allClasses ? "تمام جماعتیں" : cls}`,
-      width / 2,
-      318
-    );
-
-    const summaryY = 380;
     const summaryItems = [
-      [`کل طلبہ: ${reportStudents.length}`, "#334155"],
-      [`حاضر: ${reportCount("present")}`, "#047857"],
-      [`غیر حاضر: ${absentStudents.length}`, "#b91c1c"],
-      [`رخصت: ${reportCount("leave")}`, "#b45309"],
-      [`تعطیل: ${reportCount("holiday")}`, "#6d28d9"],
+      { label: "کل طلبہ", value: reportStudents.length, color: "#334155", bg: "#f1f5f9" },
+      { label: "حاضر", value: reportCount("present"), color: "#047857", bg: "#ecfdf5" },
+      { label: "غیر حاضر", value: absentStudents.length, color: "#b91c1c", bg: "#fef2f2" },
+      { label: "رخصت", value: reportCount("leave"), color: "#b45309", bg: "#fffbeb" },
+      { label: "تعطیل", value: reportCount("holiday"), color: "#6d28d9", bg: "#f5f3ff" },
     ];
-    const summaryWidth = (width - 120) / summaryItems.length;
+
+    drawRoundedRect(70, 278, width - 140, 82, 16, "#f8faf9", "#e4ece6");
+    context.direction = "rtl";
     context.textAlign = "center";
-    context.font = 'bold 21px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
-    summaryItems.forEach(([label, color], index) => {
-      const x = 60 + summaryWidth * (index + 0.5);
-      context.fillStyle = "#f8fafc";
-      context.fillRect(60 + summaryWidth * index + 5, summaryY - 38, summaryWidth - 10, 78);
-      context.fillStyle = color;
-      context.fillText(label, x, summaryY + 10);
+    context.fillStyle = "#64748b";
+    context.font = '17px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+    context.fillText("تاریخ", 285, 309);
+    context.fillText("جماعت", 615, 309);
+    context.fillStyle = "#0f172a";
+    context.font = 'bold 22px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+    context.fillText(reportDate, 285, 343);
+    context.fillText(allClasses ? "تمام جماعتیں" : cls, 615, 343);
+
+    const summaryWidth = 145;
+    const summaryGap = 11;
+    const summaryStart = (width - summaryItems.length * summaryWidth - (summaryItems.length - 1) * summaryGap) / 2;
+    summaryItems.forEach((item, index) => {
+      const x = summaryStart + index * (summaryWidth + summaryGap);
+      drawRoundedRect(x, 386, summaryWidth, 100, 14, item.bg, "#e8eeea");
+      context.direction = "ltr";
+      context.textAlign = "center";
+      context.fillStyle = item.color;
+      context.font = "bold 30px Arial, sans-serif";
+      context.fillText(String(item.value), x + summaryWidth / 2, 431);
+      context.direction = "rtl";
+      context.fillStyle = item.color;
+      context.font = 'bold 19px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+      context.fillText(item.label, x + summaryWidth / 2, 468);
     });
 
     context.direction = "rtl";
     context.textAlign = "right";
     context.fillStyle = "#064e3b";
-    context.font = 'bold 27px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
-    context.fillText("غیر حاضر طلبہ کے نام", width - 92, 500);
-    context.fillStyle = "#d1fae5";
-    context.fillRect(92, 516, width - 184, 2);
+    context.font = 'bold 26px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+    context.fillText("غیر حاضر طلبہ کے نام", width - 80, 538);
+    drawRoundedRect(78, 512, 122, 34, 17, "#fef2f2");
+    context.textAlign = "center";
+    context.fillStyle = "#b91c1c";
+    context.font = 'bold 16px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+    context.fillText(`${absentStudents.length} طلبہ`, 139, 535);
+    context.fillStyle = "#dce8df";
+    context.fillRect(78, 558, width - 156, 1);
 
-    context.fillStyle = "#1e293b";
-    context.font = '23px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
     if (absentStudents.length === 0) {
+      drawRoundedRect(78, 582, width - 156, 74, 14, "#ecfdf5", "#d1fae5");
+      context.beginPath();
+      context.arc(width / 2 - 210, 619, 17, 0, Math.PI * 2);
+      context.fillStyle = "#10b981";
+      context.fill();
       context.textAlign = "center";
-      context.fillText("آج کوئی طالب علم غیر حاضر نہیں ہے۔", width / 2, 570);
+      context.fillStyle = "#047857";
+      context.font = 'bold 21px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+      context.fillText("آج کوئی طالب علم غیر حاضر نہیں ہے۔", width / 2 + 20, 628);
     } else {
+      context.direction = "rtl";
+      context.textAlign = "right";
+      context.fillStyle = "#94a3b8";
+      context.font = '16px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+      context.fillText("طالب علم", 818, 583);
+      context.textAlign = "center";
+      context.fillText("جماعت", 440, 583);
+      context.textAlign = "left";
+      context.fillText("رول نمبر", 178, 583);
+
       absentStudents.forEach((student, index) => {
-        const y = 566 + index * rowHeight;
-        context.fillStyle = index % 2 === 0 ? "#f8fafc" : "#ffffff";
-        context.fillRect(82, y - 32, width - 164, rowHeight);
-        context.fillStyle = "#1e293b";
-        context.textAlign = "right";
-        const classLabel = allClasses ? `  —  کلاس: ${student.class}` : "";
-        context.fillText(
-          `${student.name}${classLabel}  —  رول نمبر: ${student.rollNo || "—"}`,
-          width - 102,
-          y
+        const rowY = 596 + index * rowHeight;
+        drawRoundedRect(
+          78,
+          rowY,
+          width - 156,
+          48,
+          10,
+          index % 2 === 0 ? "#f8faf9" : "#ffffff",
+          "#edf2ee"
         );
+        context.beginPath();
+        context.arc(106, rowY + 24, 14, 0, Math.PI * 2);
+        context.fillStyle = "#e7f5ed";
+        context.fill();
+        context.direction = "ltr";
+        context.textAlign = "center";
+        context.fillStyle = "#047857";
+        context.font = "bold 14px Arial, sans-serif";
+        context.fillText(String(index + 1), 106, rowY + 29);
+        context.direction = "rtl";
+        context.fillStyle = "#1e293b";
+        context.font = '19px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+        context.textAlign = "right";
+        context.fillText(String(student.name || ""), 818, rowY + 31, 360);
+        context.textAlign = "center";
+        context.fillStyle = "#475569";
+        context.font = "16px Arial, sans-serif";
+        context.fillText(String(student.class || "—"), 440, rowY + 30, 180);
+        context.direction = "ltr";
+        context.textAlign = "left";
+        context.fillStyle = "#475569";
+        context.font = "16px Arial, sans-serif";
+        context.fillText(String(student.rollNo || "—"), 178, rowY + 30, 90);
       });
     }
 
+    const footerY = height - 72;
+    context.fillStyle = "#e6ede8";
+    context.fillRect(78, footerY, width - 156, 1);
     context.direction = "rtl";
     context.textAlign = "center";
     context.fillStyle = "#64748b";
-    context.font = '18px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
-    context.fillText("اللہ تعالیٰ ہمارے طلبہ کو علمِ نافع عطا فرمائے", width / 2, height - 72);
+    context.font = '17px "Noto Nastaliq Urdu", "Noto Naskh Arabic", Arial, sans-serif';
+    context.fillText("اللہ تعالیٰ ہمارے طلبہ کو علمِ نافع عطا فرمائے", width / 2, height - 42);
 
     try {
       const blob = await new Promise((resolve, reject) => {
